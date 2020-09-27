@@ -22,7 +22,6 @@
 # [x] bad output format
 # [x] should be dead
 
-import os
 import sys
 import subprocess
 import argparse
@@ -54,6 +53,7 @@ def main():
     Test(10, 100, 100, 10)
     Test.run_all(config.PHILO_EXEC_PATHS[0])
     # print("yo")
+
 
 if __name__ == "__main__":
     main()

@@ -6,7 +6,7 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 17:49:41 by charles           #+#    #+#              #
-#    Updated: 2020/09/27 17:53:10 by charles          ###   ########.fr        #
+#    Updated: 2020/09/27 18:35:25 by charles          ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -16,6 +16,14 @@ import enum
 import itertools
 
 
+class FormatError(Exception):
+    pass
+
+
+class LogError(Exception):
+    pass
+
+
 class Event(enum.Enum):
     EATING = 1
     SLEEPING = 2
@@ -23,17 +31,27 @@ class Event(enum.Enum):
     DIED = 4
     NONE = 5
 
+    @staticmethod
+    def to_verb(event):
+        return {
+            Event.EATING: "eat",
+            Event.SLEEPING: "sleep",
+            Event.THINKING: "think",
+            Event.DIED: "die",
+            Event.NONE: "none",
+        }[event]
+
 
 class Log:
-    def __init__(self, log, philo_num):
+    def __init__(self, line, philo_num):
         match = re.match(
-            "^(?P<timestamp>\d+) "
-            "(?P<id>\d+) "
-            "(?P<event>is thinking|is eating|is sleeping|died)$",
-            log
+            r"^(?P<timestamp>\d+) "
+            r"(?P<id>\d+) "
+            r"(?P<event>is thinking|is eating|is sleeping|died)$",
+            line
         )
         if match is None:
-            raise ValueError("Bad line format |{}|".format(log))
+            raise FormatError("couldn't parse line")
 
         curr = int(time.time() * 1000)
         self.timestamp = Log._parse_ranged_int(match.group("timestamp"), curr - 100, curr + 100)
@@ -51,13 +69,13 @@ class Log:
         try:
             value = int(s)
             if not (lo <= value <= hi):
-                raise ValueError("Invalid value range {}".format(s))
+                raise FormatError("`{}` should be between {} - {}".format(s, lo, hi))
         except ValueError:
-            raise ValueError("Invalid value {}".format(s))
+            raise FormatError("`{}` sould be an integer".format(s))
         return value
 
     def __repr__(self):
-        return "{} {} {}".format(self.timestamp, self.id, self.event)
+        return "Log({}ms #{} {})".format(self.timestamp, self.id, self.event)
 
 
 class Philo:
@@ -75,30 +93,31 @@ class Philo:
         for e, g in grouped:
             if e is Event.EATING:
                 if len(g) != self.meal_num:
-                    raise RuntimeError("lala")
+                    raise LogError("should eat {} times".format(self.meal_num))
             else:
                 if len(g) != 1:
-                    raise RuntimeError("1lala")
+                    raise LogError("should {} 1 time".format(Event.to_verb(e)))
 
         events = [e for e, _ in grouped]
         for e1, e2 in zip(events, events[1:]):
             if e2 is Event.DIED:
                 break
-            if e1 is Event.THINKING and e2 is not Event.EATING:
-                raise RuntimeError("2lala")
-            elif e1 is Event.EATING and e2 is not Event.SLEEPING:
-                raise RuntimeError("2lala")
-            elif e1 is Event.SLEEPING and e2 is not Event.EATING:
-                raise RuntimeError("2lala")
+            second = {
+                Event.THINKING:  Event.EATING,
+                Event.EATING:   Event.SLEEPING,
+                Event.SLEEPING: Event.EATING
+            }[e1]
+            if second is not e2:
+                raise LogError("{} should switch to {}, actual {}".format(e1, second, e2))
 
         last_eat_time = int(time.time() * 1000)
-        for l in reversed(self._logs):
-            if l.event is Event.EATING:
-                last_eat_time = l.timestamp
+        for log in reversed(self._logs):
+            if log.event is Event.EATING:
+                last_eat_time = log.timestamp
                 break
 
         if int(time.time() * 1000) - last_eat_time > self._timeout_eat + 20:
-            raise RuntimeError("should be dead")
+            raise LogError("should be dead")
 
     @property
     def last_event(self):
@@ -116,7 +135,7 @@ class Table:
 
     def add_log(self, log):
         if self.dead:
-            raise RuntimeError("died")
+            raise LogError("should not output after one died")
         if log.event is Event.DIED:
             self.dead = True
         self._logs.append(log)
@@ -128,9 +147,9 @@ class Table:
             return
         fork_used = 2 * len([p for p in self._philos if p.last_event == Event.EATING])
         if fork_used > self._philo_num:
-            raise RuntimeError("too much fork")
-        for p in self._philos:
-            p.check()
+            raise LogError("using nonexistant forks")
         for l1, l2 in zip(self._logs, self._logs[1:]):
             if l1.timestamp > l2.timestamp:
-                raise RuntimeError("timestamp not ordered")
+                raise LogError("timestamp not in ordered")
+        for p in self._philos:
+            p.check()

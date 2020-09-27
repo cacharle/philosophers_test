@@ -6,7 +6,7 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:05:38 by charles           #+#    #+#              #
-#    Updated: 2020/09/27 11:51:41 by charles          ###   ########.fr        #
+#    Updated: 2020/09/27 18:00:53 by charles          ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -22,6 +22,12 @@ BUILD_BEFORE = True
 # Command to run before the test to build your project
 # `{path}` is replaced by the philosophers directory (e.g `../philo_one` `../philo_two`)
 BUILD_CMD = "make --no-print-directory -C {path}"
+
+# Timeout for non infinite test
+TIMEOUT = 2
+
+# Timeout for infinite test
+INFINITE_TIMEOUT = 1
 
 ################################################################################
 # Do not edit

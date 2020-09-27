@@ -12,14 +12,15 @@
 #                                                                              #
 # ############################################################################ #
 
-# invalid state switch
-# none existant fork
-# timestamp not in order
-# crash
-# should be infinity
-# print lines after died
-# bad output format
-# should be dead
+# [x] invalid state switch
+# [x] none existant fork
+# [x] timestamp not in order
+# [ ] crash
+# [ ] should be infinity
+# [ ] argument error
+# [x] print lines after died
+# [x] bad output format
+# [x] should be dead
 
 import os
 import sys

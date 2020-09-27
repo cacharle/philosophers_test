@@ -6,7 +6,7 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:36:32 by charles           #+#    #+#              #
-#    Updated: 2020/09/27 16:25:37 by charles          ###   ########.fr        #
+#    Updated: 2020/09/27 17:51:44 by charles          ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -15,10 +15,7 @@ import time
 import subprocess
 # import threading
 
-# from result import Result
-
-import philo
-# from test.table import Table
+import test.philo as philo
 
 
 
@@ -81,7 +78,7 @@ class Test: #(threading.Thread):
         process.wait()
 
     def _check_output(self, stream):
-        table = philo.Table(self._philo_num)
+        table = philo.Table(self._philo_num, self._timeout_eat)
 
         for line in stream:
             line = line.decode()[:-1]

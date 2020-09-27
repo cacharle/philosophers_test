@@ -6,15 +6,20 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:36:32 by charles           #+#    #+#              #
-#    Updated: 2020/09/27 13:28:15 by charles          ###   ########.fr        #
+#    Updated: 2020/09/27 16:25:37 by charles          ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
 import re
+import time
 import subprocess
 # import threading
 
 # from result import Result
+
+import philo
+# from test.table import Table
+
 
 
 class Test: #(threading.Thread):
@@ -59,44 +64,35 @@ class Test: #(threading.Thread):
         if self._meal_num is not None:
             argv.append(str(self._meal_num))
         # try:
-        process_result = subprocess.run(
+        process = subprocess.Popen(
             argv,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT
         )
-        output = process_result.stdout.decode()
-        print(output)
+        # output = process_result.stdout.decode()
+        # print(output)
                 # timeout=1,
         # except subprocess.TimeoutExpered as err:
         #     return Result(err)
         # except subprocess.CalledProcessError as err:
         #     return Result(err)
 
-        self._check_output(output)
-        # return Result()
+        self._check_output(process.stdout)
+        process.wait()
 
     def _check_output(self, stream):
-        # table = Table(self._philo_num)
+        table = philo.Table(self._philo_num)
 
-        for line in stream.split('\n'):
-            match = re.match(
-                "^(?P<timestamp>\d+) "
-                "(?P<id>\d+) "
-                "(?P<event>is thinking|is eating|is sleeping|died)$",
-                line
-            )
-            if match is None:
-                print("Bad line format |{}|".format(line))
-                return
+        for line in stream:
+            line = line.decode()[:-1]
+            # print(">", line)
+            l = philo.Log(line, self._philo_num)
+            print(l)
+            table.add_log(l)
+            table.check()
 
-            print(match.group('event'))
-            try:
-                timestamp = int(match.group("timestamp"))
-                # if timestamp < 0
-            except ValueError:
-                print("Invalid timestamp value {}".format(match.group("timestamp")))
+            # print(timestamp, id_, event)
 
-            table.add_log(match)
 
             # philo_states.append(Philo)
 
@@ -104,9 +100,3 @@ class Test: #(threading.Thread):
     #     Test._stdout_lock.aquire()
     #     print(*args)
     #     Test._stdout_lock.release()
-
-# from enum import Enum
-# class PhiloEvent(Enum):
-#     EATING = 1
-#     SLEEPING = 2
-#     THINKING = 3

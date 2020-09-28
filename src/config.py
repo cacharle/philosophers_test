@@ -6,7 +6,7 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:05:38 by charles           #+#    #+#              #
-#    Updated: 2020/09/28 12:06:05 by cacharle         ###   ########.fr        #
+#    Updated: 2020/09/28 14:54:02 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -24,7 +24,10 @@ BUILD_BEFORE = True
 BUILD_CMD = "make --no-print-directory -C {path}"
 
 # Timeout for non infinite test
-TIMEOUT = 2
+TIMEOUT = 1
+
+# Timeout for error test
+TIMEOUT_ERROR = 0.2
 
 # Timeout for infinite test
 INFINITE_TIMEOUT = 1

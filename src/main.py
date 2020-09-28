@@ -51,6 +51,8 @@ def main():
         sys.exit(1)
 
     Test.new_error([])
+    Test.new_error(["a", "a", "a", "a"])
+    Test.new_error(["aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "a", "a", "a"])
     Test.new_error(["10"])
     Test.new_error(["10", "10"])
     Test.new_error(["10", "10", "10"])
@@ -61,7 +63,20 @@ def main():
     Test.new_error(["10", "10", "10", "-1"])
     Test.new_error(["10", "10", "10", "10", "-1"])
 
-    # Test(error_cmd=[str(config.UINT_MAX + 1), "10", "10", "10"], error=True)
+    Test.new_error([str(config.UINT_MAX + 1), "10", "10", "10"])
+    Test.new_error(["10", str(config.UINT_MAX + 1), "10", "10"])
+    Test.new_error(["10", "10", str(config.UINT_MAX + 1), "10"])
+    Test.new_error(["10", "10", "10", str(config.UINT_MAX + 1)])
+    Test.new_error(["10", "10", "10", "10", str(config.UINT_MAX + 1)])
+
+    Test.new_error([str(-config.UINT_MAX), "10", "10", "10"])
+    Test.new_error(["10", str(-config.UINT_MAX), "10", "10"])
+    Test.new_error(["10", "10", str(-config.UINT_MAX), "10"])
+    Test.new_error(["10", "10", "10", str(-config.UINT_MAX)])
+    Test.new_error(["10", "10", "10", "10", str(-config.UINT_MAX)])
+
+    Test.new_error(["0", "100", "100", "100"])
+    Test.new_error(["1", "100", "100", "100"])
 
 
     # Test(10, 100, 100, 10)

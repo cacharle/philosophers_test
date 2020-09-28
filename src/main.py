@@ -78,8 +78,9 @@ def main():
     Test.new_error(["0", "100", "100", "100"])
     Test.new_error(["1", "100", "100", "100"])
 
+    Test(10, 100, 100, 10)
+    Test(10, 200, 10, 10, infinite=True)
 
-    # Test(10, 100, 100, 10)
     Test.run_all(config.PHILO_EXEC_PATHS[0])
     # print("yo")
 

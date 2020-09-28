@@ -6,7 +6,7 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:05:38 by charles           #+#    #+#              #
-#    Updated: 2020/09/28 14:54:02 by cacharle         ###   ########.fr        #
+#    Updated: 2020/09/28 16:07:03 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -30,7 +30,7 @@ TIMEOUT = 1
 TIMEOUT_ERROR = 0.2
 
 # Timeout for infinite test
-INFINITE_TIMEOUT = 1
+INFINITE_WAIT_TIME = 0.2
 
 ################################################################################
 # Do not edit

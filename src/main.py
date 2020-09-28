@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 # ############################################################################ #
 #                                                                              #
@@ -50,10 +50,27 @@ def main():
     if args.philo != 1:
         sys.exit(1)
 
-    Test(10, 100, 100, 10)
+    Test.new_error([])
+    Test.new_error(["10"])
+    Test.new_error(["10", "10"])
+    Test.new_error(["10", "10", "10"])
+    Test.new_error(["10", "10", "10", "10", "10", "10"])
+    Test.new_error(["-1", "10", "10", "10"])
+    Test.new_error(["10", "-1", "10", "10"])
+    Test.new_error(["10", "10", "-1", "10"])
+    Test.new_error(["10", "10", "10", "-1"])
+    Test.new_error(["10", "10", "10", "10", "-1"])
+
+    # Test(error_cmd=[str(config.UINT_MAX + 1), "10", "10", "10"], error=True)
+
+
+    # Test(10, 100, 100, 10)
     Test.run_all(config.PHILO_EXEC_PATHS[0])
     # print("yo")
 
 
 if __name__ == "__main__":
     main()
+
+
+

@@ -6,7 +6,7 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:05:38 by charles           #+#    #+#              #
-#    Updated: 2020/09/27 18:00:53 by charles          ###   ########.fr        #
+#    Updated: 2020/09/28 12:06:05 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -44,3 +44,10 @@ PHILO_EXEC_PATHS = [
     os.path.join(PHILO_PATHS[1], "philo_two"),
     os.path.join(PHILO_PATHS[2], "philo_three")
 ]
+
+INT_MIN   = -2147483648
+INT_MAX   = 2147483647
+UINT_MAX  = 4294967295
+LONG_MIN  = -9223372036854775808
+LONG_MAX  = 9223372036854775807
+ULONG_MAX = 18446744073709551615

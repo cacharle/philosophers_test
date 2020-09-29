@@ -32,9 +32,23 @@ from test import Test
 
 def main():
     parser = argparse.ArgumentParser(description="Philosophers test")
-    parser.add_argument("-p", "--philo", help="Id of the philosophers to test ",
-                        required=True, type=int, choices=[1, 2, 3])
-    parser.add_argument("-b", "--build", help="Build and exit")
+    parser.add_argument(
+        "-p", "--philo",
+        help="Id of the philosophers to test ",
+        required=True,
+        type=int,
+        choices=[1, 2, 3]
+    )
+    parser.add_argument(
+        "-b", "--build",
+        help="Build and exit",
+        action="store_true"
+    )
+    parser.add_argument(
+        "-g", "--pager",
+        help="Open {} in a pager after the test".format(config.RESULT_FILE),
+        action="store_true"
+    )
     args = parser.parse_args()
 
     if config.BUILD_BEFORE or args.build:
@@ -81,8 +95,16 @@ def main():
     Test(10, 100, 100, 10)
     Test(10, 200, 10, 10, infinite=True)
 
-    Test.run_all(config.PHILO_EXEC_PATHS[0])
-    # print("yo")
+    try:
+        Test.run_all(config.PHILO_EXEC_PATHS[0])
+    except KeyboardInterrupt:
+        pass
+    finally:
+        Test.write_failed()
+    if args.pager:
+        subprocess.run([*config.PAGER_CMD, config.RESULT_FILE])
+    else:
+        print("Read {} for more information".format(config.RESULT_FILE))
 
 
 if __name__ == "__main__":

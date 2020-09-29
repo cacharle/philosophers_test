@@ -17,7 +17,7 @@
 # [x] timestamp not in order
 # [ ] crash
 # [ ] should be infinity
-# [ ] argument error
+# [x] argument error
 # [x] print lines after died
 # [x] bad output format
 # [x] should be dead
@@ -89,11 +89,24 @@ def main():
     Test.new_error(["10", "10", "10", str(-config.UINT_MAX)])
     Test.new_error(["10", "10", "10", "10", str(-config.UINT_MAX)])
 
-    Test.new_error(["0", "100", "100", "100"])
-    Test.new_error(["1", "100", "100", "100"])
+    Test(0, 100, 10, 10)
+    Test(1, 100, 10, 10)
+
+    Test(2, 100, 50, 50)
+    Test(3, 100, 50, 50)
+    Test(4, 100, 50, 50)
+    Test(5, 100, 50, 50)
+    Test(6, 100, 50, 50)
+    Test(7, 100, 50, 50)
+
+    Test(100, 100, 50, 50)
 
     Test(10, 100, 100, 10)
-    Test(10, 200, 10, 10, infinite=True)
+
+    # Test(2, 50, 10, 10, infinite=True)
+    # Test(10, 50, 10, 10, infinite=True)
+    # Test(10, 100, 10, 10, infinite=True)
+    # Test(10, 200, 10, 10, infinite=True)
 
     try:
         Test.run_all(config.PHILO_EXEC_PATHS[0])

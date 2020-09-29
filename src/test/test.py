@@ -6,16 +6,18 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:36:32 by charles           #+#    #+#              #
-#    Updated: 2020/09/29 10:53:14 by cacharle         ###   ########.fr        #
+#    Updated: 2020/09/29 15:15:46 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
 import os
+import time
 import subprocess
 
 import config
 import test.philo as philo
 import test.error as error
+from helper import current_ms
 
 
 class Test:
@@ -75,21 +77,35 @@ class Test:
         if self._error_cmd is not None:
             self._check_error(process)
         elif self._infinite:
-            self._check_output(process.stdout, died=False)
-            time.sleep(config.INFINITE_WAIT_TIME)
-            process.kill()
+            try:
+                self._check_output(process.stdout, died=False)
+                process.wait(timeout=config.INFINITE_WAIT_TIME)
+            except subprocess.TimeoutExpired:
+                pass
+            else:
+                raise ShouldBeInfinite
         else:
             self._check_output(process.stdout)
             process.wait(timeout=config.TIMEOUT)
 
     def _check_output(self, stream, died: bool = True):
-        table = philo.Table(self._philo_num, self._timeout_eat)
-        for line in stream:
+        start_time = current_ms()
+        table = philo.Table(
+            self._philo_num, self._timeout_die, self._timeout_eat, self._timeout_sleep,
+            1 if self._meal_num is None else self._meal_num)
+        for i, line in enumerate(stream):
             line = line.decode()[:-1]
-            table.add_log(philo.Log(line, self._philo_num))
+            table.add_log(philo.Log(line, self._philo_num, start_time))
             table.check()
-        if died and not table.dead:
-            raise philo.error.Log("one philosopher should have died")
+            if i > 1000:
+                break
+        if died:
+            if not table.dead and self._philo_num != 0:
+                raise philo.error.Log(table._logs, "one philosopher should have died")
+        else:
+            if table.dead:
+                raise philo.error.Log(table._logs, "infinite shouldn't die")
+
 
     def _check_error(self, process):
         try:

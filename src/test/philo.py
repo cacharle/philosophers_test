@@ -6,19 +6,16 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 17:49:41 by charles           #+#    #+#              #
-#    Updated: 2020/09/29 10:54:03 by cacharle         ###   ########.fr        #
+#    Updated: 2020/09/29 15:16:16 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
 import re
-import time
 import enum
 import itertools
 
 import test.error as error
-
-def current_ms():
-    return int(time.time() * 1000)
+from helper import current_ms
 
 class Event(enum.Enum):
     EATING = 1
@@ -39,7 +36,7 @@ class Event(enum.Enum):
 
 
 class Log:
-    def __init__(self, line, philo_num):
+    def __init__(self, line, philo_num, start_time):
         match = re.match(
             r"^(?P<timestamp>\d+) "
             r"(?P<id>\d+) "
@@ -49,9 +46,10 @@ class Log:
         if match is None:
             raise error.Format(line, "wrong format")
 
-        curr = current_ms()
-        self.timestamp = Log._parse_ranged_int(match.group("timestamp"), curr - 100, curr + 100)
-        self.id = Log._parse_ranged_int(match.group("id"), 1, philo_num)
+        self._line = line
+        self.id = self._parse_ranged_int(match.group("id"), 1, philo_num)
+        self.timestamp = self._parse_ranged_int(
+            match.group("timestamp"), start_time, current_ms())
 
         self.event = {
             "is thinking": Event.THINKING,
@@ -60,14 +58,14 @@ class Log:
             "died":        Event.DIED,
         }[match.group('event')]
 
-    @staticmethod
-    def _parse_ranged_int(s, lo, hi):
+    def _parse_ranged_int(self, s, lo, hi):
         try:
             value = int(s)
             if not (lo <= value <= hi):
-                raise error.Format(s, "should be between {} - {}".format(lo, hi))
+                raise error.Format(self._line,
+                        "{} should be between {} - {}".format(s, lo, hi))
         except ValueError:
-            raise error.Format(s, "sould be an integer".format(s))
+            raise error.Format(self._line, "{} sould be an integer".format(s))
         return value
 
     def __repr__(self):
@@ -75,12 +73,20 @@ class Log:
 
 
 class Philo:
-    def __init__(self, id_: int, timeout_eat: int, meal_num: int = 1):
+    def __init__(
+        self,
+        id_: int,
+        timeout_die:   int,
+        timeout_eat:   int,
+        timeout_sleep: int,
+        meal_num:      int
+    ):
         self._logs = []
         self.id = id_
-        self.meal_num = meal_num
+        self._timeout_die = timeout_die
         self._timeout_eat = timeout_eat
-        # self._start_time = current_ms()
+        self._timeout_sleep = timeout_sleep
+        self._meal_num = meal_num
 
     def add_log(self, log):
         self._logs.append(log)
@@ -91,23 +97,28 @@ class Philo:
         grouped = [(e, list(g)) for e, g in itertools.groupby(self._logs, (lambda x: x.event))]
         for e, g in grouped:
             if e is Event.EATING:
-                if len(g) != self.meal_num:
-                    raise error.Log(self._logs, "should eat {} times".format(self.meal_num))
+                if len(g) != self._meal_num:
+                    raise error.Log(self._logs, "should eat {} times".format(self._meal_num))
             else:
                 if len(g) != 1:
                     raise error.Log(self._logs, "should {} 1 time".format(Event.to_verb(e)))
 
-        events = [e for e, _ in grouped]
-        for e1, e2 in zip(events, events[1:]):
-            if e2 is Event.DIED:
+        # events = [e for e, _ in grouped]
+        for l1, l2 in zip(self._logs, self._logs[1:]):
+            if l2.event is Event.DIED:
                 break
-            second = {
-                Event.THINKING: Event.EATING,
-                Event.EATING:   Event.SLEEPING,
-                Event.SLEEPING: Event.THINKING
-            }[e1]
-            if e2 is not second:
-                raise error.Log(self._logs, "invalid switch {} -> {}".format(e1, e2))
+            if l1.event is Event.EATING and l2.event is Event.EATING:
+                if l2.timestamp - l1.timestamp > self._timeout_eat:
+                    raise ValueError
+            second, timeout = {
+                Event.THINKING: (Event.EATING, None),
+                Event.EATING:   (Event.SLEEPING, self._timeout_eat),
+                Event.SLEEPING: (Event.THINKING, self._timeout_sleep)
+            }[l1.event]
+            if l2.event is not second:
+                raise error.Log(self._logs, "invalid switch {} -> {}".format(l1.event, l2.event))
+            if timeout is not None and l2.timestamp - l1.timestamp > timeout:
+                raise ValueError
 
         last_eat = None
         for log in reversed(self._logs):
@@ -116,8 +127,10 @@ class Philo:
                 break
         last = self._logs[-1]
         if last_eat is not None and last_eat is not last:
-            if last.timestamp - last_eat.timestamp > self._timeout_eat + 20:
-                raise error.Log(self._logs, "{} should be dead {}".format(self.id, last.timestamp))
+            if last.timestamp - last_eat.timestamp > self._timeout_die + 10:
+                raise error.Log(self._logs, "{} should be dead {} - {} > {}".format(
+                    self.id, last.timestamp, last_eat.timestamp, self._timeout_die + 10))
+
 
     @property
     def last_event(self):
@@ -127,8 +140,16 @@ class Philo:
 
 
 class Table:
-    def __init__(self, timeout_eat, philo_num):
-        self._philos = [Philo(id_, timeout_eat) for id_ in range(1, philo_num + 1)]
+    def __init__(
+        self,
+        philo_num:     int,
+        timeout_die:   int,
+        timeout_eat:   int,
+        timeout_sleep: int,
+        meal_num:      int
+    ):
+        self._philos = [Philo(id_, timeout_die, timeout_eat, timeout_sleep, meal_num)
+                        for id_ in range(1, philo_num + 1)]
         self._logs = []
         self._philo_num = philo_num
         self.dead = False
@@ -150,6 +171,6 @@ class Table:
             raise error.Log(self._logs, "using nonexistant forks")
         for l1, l2 in zip(self._logs, self._logs[1:]):
             if l1.timestamp > l2.timestamp:
-                raise error.Log("timestamp not in ordered")
+                raise error.Log(self._logs, "timestamp not in ordered")
         for p in self._philos:
             p.check()

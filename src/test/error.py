@@ -6,7 +6,7 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/29 09:09:31 by cacharle          #+#    #+#              #
-#    Updated: 2020/09/29 10:08:24 by cacharle         ###   ########.fr        #
+#    Updated: 2020/09/29 11:14:08 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -42,7 +42,7 @@ class Format(Philo):
 
     @property
     def summary(self):
-        return "format: {}".format(self._msg)
+        return "format: {} {}".format(self._line, self._msg)
 
 
 class Log(Philo):

@@ -6,7 +6,7 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 17:49:41 by charles           #+#    #+#              #
-#    Updated: 2020/09/29 15:16:16 by cacharle         ###   ########.fr        #
+#    Updated: 2020/09/30 15:02:10 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -18,29 +18,41 @@ import test.error as error
 from helper import current_ms
 
 class Event(enum.Enum):
-    EATING = 1
-    SLEEPING = 2
-    THINKING = 3
-    DIED = 4
-    NONE = 5
+    FORK     = 1
+    EATING   = 2
+    SLEEPING = 3
+    THINKING = 4
+    DIED     = 5
+    NONE     = 6
 
     @staticmethod
-    def to_verb(event):
+    def from_string(representation: str) -> Event:
         return {
-            Event.EATING:   "eat",
-            Event.SLEEPING: "sleep",
-            Event.THINKING: "think",
-            Event.DIED:     "die",
-            Event.NONE:     "none",
+            "has taken fork": Event.FORK,
+            "is thinking":    Event.THINKING,
+            "is eating":      Event.EATING,
+            "is sleeping":    Event.SLEEPING,
+            "died":           Event.DIED,
+        }[representation]
+
+    @staticmethod
+    def to_string(event: Event) -> str:
+        return {
+            Event.FORK:       "has taken fork",
+            Event.THINKING:   "is thinking",
+            Event.EATING:     "is eating",
+            Event.SLEEPING:   "is sleeping",
+            Event.DIED:       "died"
         }[event]
 
 
+
 class Log:
-    def __init__(self, line, philo_num, start_time):
+    def __init__(self, line: str, philo_num, start_time):
         match = re.match(
             r"^(?P<timestamp>\d+) "
             r"(?P<id>\d+) "
-            r"(?P<event>is thinking|is eating|is sleeping|died)$",
+            r"(?P<event>is thinking|is eating|is sleeping|died|has taken fork)$",
             line
         )
         if match is None:
@@ -51,12 +63,7 @@ class Log:
         self.timestamp = self._parse_ranged_int(
             match.group("timestamp"), start_time, current_ms())
 
-        self.event = {
-            "is thinking": Event.THINKING,
-            "is eating":   Event.EATING,
-            "is sleeping": Event.SLEEPING,
-            "died":        Event.DIED,
-        }[match.group('event')]
+        self.event = Event.from_string(match.group('event'))
 
     def _parse_ranged_int(self, s, lo, hi):
         try:
@@ -101,7 +108,7 @@ class Philo:
                     raise error.Log(self._logs, "should eat {} times".format(self._meal_num))
             else:
                 if len(g) != 1:
-                    raise error.Log(self._logs, "should {} 1 time".format(Event.to_verb(e)))
+                    raise error.Log(self._logs, "event {} should occur 1 time".format(Event.to_string(e)))
 
         # events = [e for e, _ in grouped]
         for l1, l2 in zip(self._logs, self._logs[1:]):
@@ -130,6 +137,17 @@ class Philo:
             if last.timestamp - last_eat.timestamp > self._timeout_die + 10:
                 raise error.Log(self._logs, "{} should be dead {} - {} > {}".format(
                     self.id, last.timestamp, last_eat.timestamp, self._timeout_die + 10))
+
+    def _check_fork_taking(self):
+        for l1, l2, l3 in zip(self._logs, self._logs[1:], self._logs[2:]):
+            if l1.event is Event.FORK and (l2.event is not Event.FORK or l2.event is not Event.EAT):
+                raise ValueError("take fork but no eat")
+
+    def _check_meal(self):
+        pass
+
+    def _check_order(self):
+        pass
 
 
     @property

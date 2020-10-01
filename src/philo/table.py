@@ -6,7 +6,7 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:53:29 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/01 11:31:44 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/01 14:15:09 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -41,7 +41,7 @@ class Table:
         philo.logs.append(log)
         # move
         if self.dead:
-            raise error.Log(self._logs, "should not output after death")
+            raise error.Log(self._logs, "Output after death")
         if log.event is Event.DIE:
             self.dead = True
 
@@ -61,7 +61,7 @@ class Table:
 
         fork_used = sum([p.used_forks for p in self._philos])
         if fork_used > self._philo_num:
-            raise error.Log(self._logs, "using nonexistant forks")
+            raise error.Log(self._logs, "Using nonexistant forks")
         for l1, l2 in zip(self._logs, self._logs[1:]):
             if l1.timestamp > l2.timestamp:
-                raise error.Log(self._logs, "timestamps not in ordered")
+                raise error.Log(self._logs, "Timestamps not in ordered")

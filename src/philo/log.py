@@ -6,7 +6,7 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:51:39 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/01 11:30:53 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/01 14:19:29 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -44,4 +44,4 @@ class Log:
         return value
 
     def __repr__(self):
-        return "{}ms #{} {}".format(self.timestamp, self.id, self.event)
+        return "{} {} {}".format(self.timestamp, self.id, Event.to_string(self.event))

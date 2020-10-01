@@ -6,7 +6,7 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:52:56 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/01 11:19:23 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/01 16:39:30 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -54,54 +54,80 @@ class Philo:
             - State switch should be
               thinking -> take fork -> take fork -> eat * meal_num -> sleep -> repeat
             - Should die when starving: last log timestamp - timeout_death > last_time_eat
+            - Should eat n times, Should take fork 2 times, The other event should happend 1 time
         """
 
         if len(self.logs) == 0:
             return
 
-    # def _check_fork_taking(self):
-    #     for l1, l2, l3 in zip(self.logs, self.logs[1:], self.logs[2:]):
-    #         if l1.event is Event.FORK and (l2.event is not Event.FORK or l2.event is not Event.EAT):
-    #             self._raise("should take 2 forks then eat")
-    #
-    # def _check_meal(self):
-    #     grouped = [(e, list(g)) for e, g in itertools.groupby(self.logs, (lambda x: x.event))]
-    #     for e, g in grouped:
-    #         if e is Event.EATING:
-    #             if len(g) != self._meal_num:
-    #                 raise error.Log(self.logs, "should eat {} times".format(self._meal_num))
-    #         else:
-    #             if len(g) != 1:
-    #                 raise error.Log(self.logs, "event {} should occur 1 time".format(Event.to_string(e)))
-    #
-    # def _check_order(self):
-    #     for l1, l2 in zip(self.logs, self.logs[1:]):
-    #         if l2.event is Event.DIED:
-    #             break
-    #         if l1.event is Event.EATING and l2.event is Event.EATING:
-    #             if l2.timestamp - l1.timestamp > self._timeout_eat:
-    #                 raise ValueError
-    #         second, timeout = {
-    #             Event.THINKING: (Event.EATING, None),
-    #             Event.EATING:   (Event.SLEEPING, self._timeout_eat),
-    #             Event.SLEEPING: (Event.THINKING, self._timeout_sleep)
-    #         }[l1.event]
-    #         if l2.event is not second:
-    #             raise error.Log(self.logs, "invalid switch {} -> {}".format(l1.event, l2.event))
-    #         if timeout is not None and l2.timestamp - l1.timestamp > timeout:
-    #             raise ValueError
-    #
-    # def _check_death_timeout(self):
-    #     last_eat = None
-    #     for log in reversed(self.logs):
-    #         if log.event is Event.EATING:
-    #             last_eat = log
-    #             break
-    #     last = self.logs[-1]
-    #     if last_eat is not None and last_eat is not last:
-    #         if last.timestamp - last_eat.timestamp > self._timeout_die + 10:
-    #             raise error.Log(self.logs, "{} should be dead {} - {} > {}".format(
-    #                 self.id, last.timestamp, last_eat.timestamp, self._timeout_die + 10))
+        # check 2 forks before eating
+        for l1, l2, l3 in zip(self.logs, self.logs[1:], self.logs[2:]):
+            if (l3.event is Event.EAT
+                and (l1.event is not Event.FORK
+                     or l2.event is not Event.FORK)):
+                self._raise("should take 2 forks then eat")
+
+        # check log event number
+        grouped = [(e, list(g)) for e, g in itertools.groupby(self.logs, (lambda x: x.event))]
+        for e, g in grouped[:-1]:
+            if e is Event.EAT:
+                if len(g) != self._meal_num:
+                    self._raise("Should eat {} times".format(self._meal_num))
+            elif e is Event.FORK:
+                if len(g) != 2:
+                    self._raise("Should take fork 2 times")
+            elif len(g) != 1:
+                self._raise("Event `{}` should occur 1 time".format(Event.to_string(e)))
+
+        # check state switch order
+        events = [e for e, _ in grouped]
+        for e1, e2 in zip(events, events[1:]):
+            second = {
+                Event.THINK: Event.FORK,
+                Event.FORK:  Event.EAT,
+                Event.EAT:   Event.SLEEP,
+                Event.SLEEP: Event.THINK
+            }[e1]
+            if e2 is not second:
+                self._raise("invalid state switch `{}` -> `{}`".format(
+                    Event.to_string(e1), Event.to_string(e2)))
+
+        # check timeouts
+        for l1, l2 in zip(self.logs, self.logs[1:]):
+            e1, e2 = l1.event, l2.event
+            t1, t2 = l1.timestamp, l2.timestamp
+            if e1 is Event.FORK and e2 is Event.EAT:
+                if t2 - t1 > 10:
+                    self._raise("Delay between taking second fork and eat > 10")
+            if e1 is Event.SLEEP:
+                self._check_time_range(t1, t2, self._timeout_sleep, "Slept")
+            if e1 is Event.EAT:
+                self._check_time_range(t1, t2, self._timeout_eat, "Ate")
+
+
+        # if l1.event is Event.EATING and l2.event is Event.EATING:
+        #     if l2.timestamp - l1.timestamp > self._timeout_eat:
+        #         raise ValueError
+        # if timeout is not None and l2.timestamp - l1.timestamp > timeout:
+        #     raise ValueError
+
+        # check if should be dead
+        # last_eat = None
+        # for log in reversed(self.logs):
+        #     if log.event is Event.EATING:
+        #         last_eat = log
+        #         break
+        # last = self.logs[-1]
+        # if last_eat is not None and last_eat is not last:
+        #     if last.timestamp - last_eat.timestamp > self._timeout_die + 10:
+        #         self._raise("{} should be dead {} - {} > {}".format(self.id, last.timestamp, last_eat.timestamp, self._timeout_die + 10))
+
+    def _check_time_range(self, t1, t2, timeout, verb):
+        lo = timeout - 10
+        hi = timeout + 10
+        if not (lo <= t2 - t1 <= hi):
+            self._raise("{} {}ms expected {}-{}ms".format(verb, t2 - t1, lo, hi))
+
 
     def _raise(self, msg):
         """ Helper to raise Log errrors"""

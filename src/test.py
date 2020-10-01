@@ -6,7 +6,7 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:36:32 by charles           #+#    #+#              #
-#    Updated: 2020/10/01 11:41:21 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/01 16:27:21 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -80,22 +80,23 @@ class Test:
         process = subprocess.Popen(
             self._argv(),
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT
+            stderr=subprocess.PIPE,
+            bufsize=0
+
         )
         if self._error_cmd is not None:
             self._check_error(process)
             return
 
-        out = ""
         try:
-            out, _ = process.communicate(timeout=1)
-        except subprocess.TimeoutExpired as e:
-            out = e.stdout
+            out, err = process.communicate(timeout=config.TIMEOUT)
+        # process.terminate()
+        except subprocess.TimeoutExpired:
+            process.kill()
+            out, err = process.communicate()
         end_time = current_ms()
-        try:
-            out = out.decode()
-        except UnicodeDecodeError:
-            pass # TODO
+        out = out.decode()
+        err = err.decode()
 
         table = philo.Table(
             self._philo_num,
@@ -110,13 +111,13 @@ class Test:
 
     def _check_error(self, process):
         try:
-            out, _ = process.communicate(timeout=config.TIMEOUT_ERROR)
+            _, err = process.communicate(timeout=config.TIMEOUT_ERROR)
         except subprocess.TimeoutExpired:
             raise error.ShouldFail("no error message")
         if process.returncode == 0:
             raise error.ShouldFail("non zero status code: {}".format(process.returncode))
-        if out.decode().count('\n') != 1:
-            raise error.ShouldFail("no error message")
+        if err.decode().count('\n') != 1:
+            raise error.ShouldFail("no error message on stderr")
 
     def _argv(self, basename=False):
         exec_path = os.path.basename(Test._exec_path) if basename else Test._exec_path

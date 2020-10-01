@@ -1,30 +1,17 @@
 # ############################################################################ #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    helper.py                                          :+:      :+:    :+:    #
+#    __init__.py                                        :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2020/09/29 11:19:32 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/01 11:27:48 by cacharle         ###   ########.fr        #
+#    Created: 2020/10/01 10:50:41 by cacharle          #+#    #+#              #
+#    Updated: 2020/10/01 11:08:00 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
-import time
-
-def current_ms():
-    return int(time.time() * 1000)
-
-RED_CHARS   = "\033[31m"
-GREEN_CHARS = "\033[32m"
-BLUE_CHARS  = "\033[34m"
-CLOSE_CHARS = "\033[0m"
-
-def red(string):
-    return RED_CHARS + string + CLOSE_CHARS
-
-def green(string):
-    return GREEN_CHARS + string + CLOSE_CHARS
-
-def blue(string):
-    return BLUE_CHARS + string + CLOSE_CHARS
+from philo.philo import Philo
+from philo.table import Table
+from philo.log   import Log
+from philo.event import Event
+import philo.error as error

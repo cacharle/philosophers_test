@@ -6,7 +6,7 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:05:38 by charles           #+#    #+#              #
-#    Updated: 2020/09/29 14:33:35 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/01 10:15:26 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -24,16 +24,10 @@ BUILD_BEFORE = True
 BUILD_CMD = "make --no-print-directory -C {path}"
 
 # Timeout for non infinite test
-TIMEOUT = 1
+TIMEOUT = 1.0
 
 # Timeout for error test
 TIMEOUT_ERROR = 0.2
-
-# Timeout for infinite test
-INFINITE_WAIT_TIME = 0.2
-
-# Maximum number of lines for infinite test
-INFINITE_MAX_LINE = 1000
 
 # Destination of the full summary of failed tests
 RESULT_FILE = "result.log"

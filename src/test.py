@@ -6,7 +6,7 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:36:32 by charles           #+#    #+#              #
-#    Updated: 2020/09/29 15:15:46 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/01 11:41:21 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -15,9 +15,8 @@ import time
 import subprocess
 
 import config
-import test.philo as philo
-import test.error as error
-from helper import current_ms
+import philo
+from helper import current_ms, red, green
 
 
 class Test:
@@ -43,7 +42,6 @@ class Test:
         timeout_sleep: int   = None,
         meal_num:      int   = None,
         error_cmd:     [str] = None,
-        infinite:      bool  = False
     ):
         self._philo_num     = philo_num
         self._timeout_die   = timeout_die
@@ -51,13 +49,12 @@ class Test:
         self._timeout_sleep = timeout_sleep
         self._meal_num      = meal_num
         self._error_cmd     = error_cmd
-        self._infinite      = infinite
         Test._tests.append(self)
 
     def run(self):
         try:
             self._run_tested()
-        except error.Philo as e:
+        except philo.error.Philo as e:
             self._print_fail(e.summary)
             Test._fail_summaries.append(self._argv_str + '\n' + e.full_summary)
         else:
@@ -68,7 +65,18 @@ class Test:
         with open(config.RESULT_FILE, "w") as f:
             f.write('\n\n'.join(cls._fail_summaries))
 
+    @classmethod
+    def print_summary(cls):
+        fail_total = len(cls._fail_summaries)
+        pass_total = len(cls._tests) - fail_total
+        print("Summary: Total {}   {}   {}".format(
+            len(cls._tests),
+            green("[PASS] {:3}".format(pass_total)),
+            red("[FAIL] {:3}".format(fail_total))
+        ))
+
     def _run_tested(self):
+        start_time = current_ms()
         process = subprocess.Popen(
             self._argv(),
             stdout=subprocess.PIPE,
@@ -76,36 +84,29 @@ class Test:
         )
         if self._error_cmd is not None:
             self._check_error(process)
-        elif self._infinite:
-            try:
-                self._check_output(process.stdout, died=False)
-                process.wait(timeout=config.INFINITE_WAIT_TIME)
-            except subprocess.TimeoutExpired:
-                pass
-            else:
-                raise ShouldBeInfinite
-        else:
-            self._check_output(process.stdout)
-            process.wait(timeout=config.TIMEOUT)
+            return
 
-    def _check_output(self, stream, died: bool = True):
-        start_time = current_ms()
+        out = ""
+        try:
+            out, _ = process.communicate(timeout=1)
+        except subprocess.TimeoutExpired as e:
+            out = e.stdout
+        end_time = current_ms()
+        try:
+            out = out.decode()
+        except UnicodeDecodeError:
+            pass # TODO
+
         table = philo.Table(
-            self._philo_num, self._timeout_die, self._timeout_eat, self._timeout_sleep,
-            1 if self._meal_num is None else self._meal_num)
-        for i, line in enumerate(stream):
-            line = line.decode()[:-1]
-            table.add_log(philo.Log(line, self._philo_num, start_time))
+            self._philo_num,
+            self._timeout_die,
+            self._timeout_eat,
+            self._timeout_sleep,
+            1 if self._meal_num is None else self._meal_num
+        )
+        for line in out.split('\n')[:-1]:
+            table.add_log(philo.Log(line, self._philo_num, start_time, end_time))
             table.check()
-            if i > 1000:
-                break
-        if died:
-            if not table.dead and self._philo_num != 0:
-                raise philo.error.Log(table._logs, "one philosopher should have died")
-        else:
-            if table.dead:
-                raise philo.error.Log(table._logs, "infinite shouldn't die")
-
 
     def _check_error(self, process):
         try:
@@ -137,12 +138,8 @@ class Test:
     def _argv_str(self):
         return ' '.join(self._argv(basename=True))
 
-    RED_CHARS   = "\033[31m"
-    GREEN_CHARS = "\033[32m"
-    CLOSE_CHARS = "\033[0m"
-
     def _print_fail(self, msg):
-        print("{}[FAIL] {}: {}{}".format(Test.RED_CHARS, self._argv_str, msg, Test.CLOSE_CHARS))
+        print(red("[FAIL] {}: {}".format(self._argv_str, msg)))
 
     def _print_pass(self):
-        print("{}[PASS] {}{}".format(Test.GREEN_CHARS, self._argv_str, Test.CLOSE_CHARS))
+        print(green("[PASS] {}".format(self._argv_str)))

@@ -6,13 +6,13 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:52:56 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/01 16:39:30 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/05 14:03:07 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
 import itertools
 
-from . import error
+from philo import error
 from philo.event import Event
 
 
@@ -31,20 +31,6 @@ class Philo:
         self._timeout_eat   = timeout_eat
         self._timeout_sleep = timeout_sleep
         self._meal_num      = meal_num
-
-    @property
-    def used_forks(self):
-        """ The number of forks currently used by the philosopher """
-        if len(self.logs) < 1:
-            return 0
-        if self.logs[-1].event is Event.EAT:
-            return 2
-        if self.logs[-1].event is Event.FORK:
-            if len(self.logs) > 1 and self.logs[-2].event is Event.FORK:
-                return 2
-            else:
-                return 1
-        return 0
 
     def check(self):
         """ Check log for errors
@@ -104,32 +90,40 @@ class Philo:
             if e1 is Event.EAT:
                 self._check_time_range(t1, t2, self._timeout_eat, "Ate")
 
-
-        # if l1.event is Event.EATING and l2.event is Event.EATING:
-        #     if l2.timestamp - l1.timestamp > self._timeout_eat:
-        #         raise ValueError
-        # if timeout is not None and l2.timestamp - l1.timestamp > timeout:
-        #     raise ValueError
-
         # check if should be dead
-        # last_eat = None
-        # for log in reversed(self.logs):
-        #     if log.event is Event.EATING:
-        #         last_eat = log
-        #         break
-        # last = self.logs[-1]
-        # if last_eat is not None and last_eat is not last:
-        #     if last.timestamp - last_eat.timestamp > self._timeout_die + 10:
-        #         self._raise("{} should be dead {} - {} > {}".format(self.id, last.timestamp, last_eat.timestamp, self._timeout_die + 10))
+        last_eat = next(
+            (log for log in reversed(self.logs) if log.event is Event.EAT),
+            None
+        )
+        last = self.logs[-1]
+        if last_eat is not None and last_eat is not last:
+            if last.timestamp - last_eat.timestamp > self._timeout_die + 10:
+                self._raise(
+                    "{} should be dead {} - {} > {}"
+                    .format(self.id, last.timestamp,
+                            last_eat.timestamp, self._timeout_die + 10)
+                )
 
     def _check_time_range(self, t1, t2, timeout, verb):
-        lo = timeout - 10
-        hi = timeout + 10
-        if not (lo <= t2 - t1 <= hi):
-            self._raise("{} {}ms expected {}-{}ms".format(verb, t2 - t1, lo, hi))
-
+        start = timeout - 10
+        end = timeout + 10
+        if not (start <= t2 - t1 <= end):
+            self._raise("{} {}ms expected {}-{}ms".format(verb, t2 - t1, start, end))
 
     def _raise(self, msg):
         """ Helper to raise Log errrors"""
         raise error.Log(self.logs, msg)
 
+    @property
+    def used_forks(self):
+        """ The number of forks currently used by the philosopher """
+        if len(self.logs) < 1:
+            return 0
+        if self.logs[-1].event is Event.EAT:
+            return 2
+        if self.logs[-1].event is Event.FORK:
+            if len(self.logs) > 1 and self.logs[-2].event is Event.FORK:
+                return 2
+            else:
+                return 1
+        return 0

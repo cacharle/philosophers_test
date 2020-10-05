@@ -6,7 +6,7 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:53:29 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/01 14:15:09 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/05 14:03:35 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -16,6 +16,7 @@ import itertools
 from philo import Philo
 from philo import error
 from philo.event import Event
+
 
 class Table:
     def __init__(
@@ -55,10 +56,8 @@ class Table:
 
         if self.dead:
             return
-
         for p in self._philos:
             p.check()
-
         fork_used = sum([p.used_forks for p in self._philos])
         if fork_used > self._philo_num:
             raise error.Log(self._logs, "Using nonexistant forks")

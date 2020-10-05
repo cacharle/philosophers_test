@@ -6,9 +6,12 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/29 09:09:31 by cacharle          #+#    #+#              #
-#    Updated: 2020/09/29 11:14:08 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/05 13:51:40 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
+
+import textwrap
+
 
 class Philo(Exception):
     pass
@@ -53,9 +56,10 @@ class Log(Philo):
 
     @property
     def full_summary(self):
-        return """LOG ERROR: {}
-{}
-""".format(self._msg, '\n'.join([str(l) for l in self._logs]))
+        return textwrap.dedent("""\
+            LOG ERROR: {}
+            {}
+            """).format(self._msg, '\n'.join([str(log) for log in self._logs]))
 
     @property
     def summary(self):

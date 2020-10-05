@@ -6,27 +6,44 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:23:09 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/01 10:33:00 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/05 14:03:42 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
 
 import argparse
+import textwrap
 
 import config
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Philosophers test",
-        formatter_class=argparse.RawTextHelpFormatter
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=textwrap.dedent("""\
+            Tested:
+             - Take 2 forks before eating
+             - State switch in the correct order
+               think -> fork -> fork -> eat n times -> sleep
+             - Almost 0 delay between second fork taken and eat
+             - Die if the death timeout is expired
+             - No output after death
+             - Timestamp in order
+             - Only take existing fork
+             - Error message and status != 0 on argument error
+               (not asked by subject but easy to do and cleanner)
+        """)
     )
     parser.add_argument(
         "-p", "--philo",
-        help="Id of the philosopher program to test \n"
-             "- 1: philo_one\n"
-             "- 2: philo_two\n"
-             "- 3: philo_three\n"
-             "- 0: all programs\n",
+        help=textwrap.dedent("""\
+            Number of the philosopher program to test
+             - 1: philo_one
+             - 2: philo_two
+             - 3: philo_three
+             - 0: all programs
+        """),
         required=True,
         type=int,
         choices=[0, 1, 2, 3]

@@ -6,11 +6,12 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:51:13 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/01 11:21:00 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/05 13:51:48 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
 import enum
+
 
 class Event(enum.Enum):
     FORK  = 1

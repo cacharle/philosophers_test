@@ -6,12 +6,11 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:36:32 by charles           #+#    #+#              #
-#    Updated: 2020/10/01 16:27:21 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/05 13:50:01 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
 import os
-import time
 import subprocess
 
 import config
@@ -113,11 +112,11 @@ class Test:
         try:
             _, err = process.communicate(timeout=config.TIMEOUT_ERROR)
         except subprocess.TimeoutExpired:
-            raise error.ShouldFail("no error message")
+            raise philo.error.ShouldFail("no error message")
         if process.returncode == 0:
-            raise error.ShouldFail("non zero status code: {}".format(process.returncode))
+            raise philo.error.ShouldFail("non zero status code: {}".format(process.returncode))
         if err.decode().count('\n') != 1:
-            raise error.ShouldFail("no error message on stderr")
+            raise philo.error.ShouldFail("no error message on stderr")
 
     def _argv(self, basename=False):
         exec_path = os.path.basename(Test._exec_path) if basename else Test._exec_path

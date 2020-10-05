@@ -6,12 +6,13 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:41:43 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/01 12:08:18 by cacharle         ###   ########.fr        #
+#    Updated: 2020/10/05 13:49:30 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
 import config
 from test import Test
+
 
 def suite():
     Test.new_error([])

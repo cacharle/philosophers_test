@@ -2,6 +2,8 @@
 
 Test for the philosophers project of school 42.
 
+![screenshot](screenshot.png)
+
 ## Usage
 
 Clone this repository next to your project directory.

@@ -6,12 +6,9 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:53:29 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/05 14:03:35 by cacharle         ###   ########.fr        #
+#    Updated: 2020/12/30 14:26:37 by charles          ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
-
-
-import itertools
 
 from philo import Philo
 from philo import error
@@ -31,20 +28,21 @@ class Table:
                            for id_ in range(1, philo_num + 1)]
         self._logs      = []
         self._philo_num = philo_num
-        self.dead       = False
+        self.finished       = False
+        self._meal_num  = meal_num
 
     def add_log(self, log):
         """ Add a log to the correct philosopher
-            Set the dead flag if it's a death log
+            Set the finished flag if it's a death log
         """
         self._logs.append(log)
         philo = next(p for p in self._philos if p.id == log.id)
         philo.logs.append(log)
         # move
-        if self.dead:
+        if self.finished:
             raise error.Log(self._logs, "Output after death")
-        if log.event is Event.DIE:
-            self.dead = True
+        if log.event is Event.DIE or all(p.meal_num_finished for p in self._philos):
+            self.finished = True
 
     def check(self):
         """ Check global logs and all philosophers logs for errors
@@ -54,7 +52,7 @@ class Table:
             - Timestamps should be in increasing order
         """
 
-        if self.dead:
+        if self.finished:
             return
         for p in self._philos:
             p.check()

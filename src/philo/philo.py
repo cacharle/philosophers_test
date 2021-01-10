@@ -6,7 +6,7 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:52:56 by cacharle          #+#    #+#              #
-#    Updated: 2021/01/03 13:31:54 by cacharle         ###   ########.fr        #
+#    Updated: 2021/01/10 15:35:14 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -25,7 +25,7 @@ class Philo:
         timeout_sleep: int,
         meal_num:      int
     ):
-        self.logs          = []
+        self.logs           = []
         self.id             = id_
         self._timeout_die   = timeout_die
         self._timeout_eat   = timeout_eat
@@ -56,9 +56,6 @@ class Philo:
         # check log event number
         grouped = [(e, list(g)) for e, g in itertools.groupby(self.logs, (lambda x: x.event))]
         for e, g in grouped[:-1]:
-            # if e is Event.EAT:
-            #     if len(g) != self._meal_num:
-            #         self._raise("Should eat {} times".format(self._meal_num))
             if e is Event.FORK:
                 if len(g) != 2:
                     self._raise("Should take fork 2 times")
@@ -127,3 +124,7 @@ class Philo:
             else:
                 return 1
         return 0
+
+    @property
+    def meal_num_finished(self):
+        return len([log for log in self.logs if log.event is Event.EAT]) >= self._meal_num

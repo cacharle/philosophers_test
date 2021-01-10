@@ -6,7 +6,7 @@
 #    By: charles <me@cacharle.xyz>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/09/27 11:36:32 by charles           #+#    #+#              #
-#    Updated: 2020/10/05 13:50:01 by cacharle         ###   ########.fr        #
+#    Updated: 2021/01/03 13:53:38 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -89,7 +89,6 @@ class Test:
 
         try:
             out, err = process.communicate(timeout=config.TIMEOUT)
-        # process.terminate()
         except subprocess.TimeoutExpired:
             process.kill()
             out, err = process.communicate()

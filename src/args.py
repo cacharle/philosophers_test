@@ -6,7 +6,7 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:23:09 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/05 14:03:42 by cacharle         ###   ########.fr        #
+#    Updated: 2021/01/03 13:32:55 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -44,9 +44,9 @@ def parse_args():
              - 3: philo_three
              - 0: all programs
         """),
-        required=True,
         type=int,
-        choices=[0, 1, 2, 3]
+        choices=[0, 1, 2, 3],
+        default=0
     )
     parser.add_argument(
         "-b", "--build",

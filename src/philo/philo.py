@@ -6,7 +6,7 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:52:56 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/05 14:03:07 by cacharle         ###   ########.fr        #
+#    Updated: 2021/01/03 13:31:54 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -56,10 +56,10 @@ class Philo:
         # check log event number
         grouped = [(e, list(g)) for e, g in itertools.groupby(self.logs, (lambda x: x.event))]
         for e, g in grouped[:-1]:
-            if e is Event.EAT:
-                if len(g) != self._meal_num:
-                    self._raise("Should eat {} times".format(self._meal_num))
-            elif e is Event.FORK:
+            # if e is Event.EAT:
+            #     if len(g) != self._meal_num:
+            #         self._raise("Should eat {} times".format(self._meal_num))
+            if e is Event.FORK:
                 if len(g) != 2:
                     self._raise("Should take fork 2 times")
             elif len(g) != 1:

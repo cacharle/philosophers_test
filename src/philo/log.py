@@ -6,7 +6,7 @@
 #    By: cacharle <me@cacharle.xyz>                 +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/10/01 10:51:39 by cacharle          #+#    #+#              #
-#    Updated: 2020/10/05 13:52:51 by cacharle         ###   ########.fr        #
+#    Updated: 2021/01/03 13:28:20 by cacharle         ###   ########.fr        #
 #                                                                              #
 # ############################################################################ #
 
@@ -29,15 +29,14 @@ class Log:
 
         self._line = line
         self.id = self._parse_ranged_int(match.group("id"), 1, philo_num)
-        self.timestamp = self._parse_ranged_int(
-            match.group("timestamp"), start_time, end_time)
+        self.timestamp = self._parse_ranged_int(match.group("timestamp"))
 
         self.event = Event.from_string(match.group('event'))
 
-    def _parse_ranged_int(self, s, lo, hi):
+    def _parse_ranged_int(self, s, lo=None, hi=None):
         try:
             value = int(s)
-            if not (lo <= value <= hi):
+            if lo is not None and not (lo <= value <= hi):
                 raise philo.error.Format(
                     self._line,
                     "{} should be between {} - {}".format(s, lo, hi)

@@ -24,7 +24,7 @@ class Event(enum.Enum):
     @staticmethod
     def from_string(representation: str) -> "Event":
         return {
-            "has taken fork": Event.FORK,
+            "has taken a fork": Event.FORK,
             "is thinking":    Event.THINK,
             "is eating":      Event.EAT,
             "is sleeping":    Event.SLEEP,
@@ -34,7 +34,7 @@ class Event(enum.Enum):
     @staticmethod
     def to_string(event: "Event") -> str:
         return {
-            Event.FORK:  "has taken fork",
+            Event.FORK:  "has taken a fork",
             Event.THINK: "is thinking",
             Event.EAT:   "is eating",
             Event.SLEEP: "is sleeping",

@@ -21,7 +21,7 @@ class Log:
         match = re.match(
             r"^(?P<timestamp>\d+) "
             r"(?P<id>\d+) "
-            r"(?P<event>is thinking|is eating|is sleeping|died|has taken fork)$",
+            r"(?P<event>is thinking|is eating|is sleeping|died|has taken a fork)$",
             line
         )
         if match is None:
